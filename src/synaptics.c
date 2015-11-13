@@ -316,8 +316,8 @@ calculate_edge_widths(SynapticsPrivate * priv, int *l, int *r, int *t, int *b)
     }
     else if (priv->model == MODEL_APPLETOUCH ||
              priv->model == MODEL_UNIBODY_MACBOOK) {
-        ewidth = width * .085;
-        eheight = height * .085;
+             ewidth = width * .085;
+             eheight = height * .085;
     }
     else {
         ewidth = width * .04;
@@ -1300,8 +1300,8 @@ DeviceInit(DeviceIntPtr dev)
     }
 
     xf86InitValuatorAxisStruct(dev, 0, axes_labels[0], min, max,
-                   priv->resx * 1000, 0, priv->resx * 1000,
-                   Relative);
+                               priv->resx * 1000, 0, priv->resx * 1000,
+                               Relative);
     xf86InitValuatorDefaults(dev, 0);
 
     /* Y valuator */
@@ -1315,8 +1315,8 @@ DeviceInit(DeviceIntPtr dev)
     }
 
     xf86InitValuatorAxisStruct(dev, 1, axes_labels[1], min, max,
-                   priv->resy * 1000, 0, priv->resy * 1000,
-                   Relative);
+                               priv->resy * 1000, 0, priv->resy * 1000,
+                               Relative);
     xf86InitValuatorDefaults(dev, 1);
 
     xf86InitValuatorAxisStruct(dev, 2, axes_labels[2], 0, -1, 0, 0, 0,
@@ -1893,7 +1893,7 @@ SetTapState(SynapticsPrivate * priv, enum TapState tap_state, CARD32 millis)
         priv->tap_button_state = TBS_BUTTON_UP;
         break;
     case TS_2A:
-    priv->tap_button_state = TBS_BUTTON_UP;
+        priv->tap_button_state = TBS_BUTTON_UP;
         break;
     case TS_2B:
         priv->tap_button_state = TBS_BUTTON_UP;
@@ -1902,7 +1902,7 @@ SetTapState(SynapticsPrivate * priv, enum TapState tap_state, CARD32 millis)
         priv->tap_button_state = TBS_BUTTON_DOWN;
         break;
     case TS_SINGLETAP:
-    priv->tap_button_state = TBS_BUTTON_DOWN;
+        priv->tap_button_state = TBS_BUTTON_DOWN;
         priv->touch_on.millis = millis;
         break;
     default:
