@@ -245,6 +245,8 @@ struct _SynapticsPrivateRec {
 
     struct SynapticsHwState *local_hw_state;    /* used in place of local hw state variables */
 
+    Bool absolute_events; /* Keeps track of absolute/relative mode */
+
     SynapticsMoveHistRec move_hist[SYNAPTICS_MOVE_HISTORY];     /* movement history */
     int hist_index;             /* Last added entry in move_hist[] */
     int hyst_center_x;          /* center x of hysteresis */

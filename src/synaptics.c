@@ -201,7 +201,7 @@ _X_EXPORT XF86ModuleData synapticsModuleData = {
 };
 
 /*****************************************************************************
- *	Function Definitions
+ *  Function Definitions
  ****************************************************************************/
 static inline void
 SynapticsCloseFd(InputInfoPtr pInfo)
@@ -1300,8 +1300,8 @@ DeviceInit(DeviceIntPtr dev)
     }
 
     xf86InitValuatorAxisStruct(dev, 0, axes_labels[0], min, max,
-			       priv->resx * 1000, 0, priv->resx * 1000,
-			       Relative);
+                   priv->resx * 1000, 0, priv->resx * 1000,
+                   Relative);
     xf86InitValuatorDefaults(dev, 0);
 
     /* Y valuator */
@@ -1315,8 +1315,8 @@ DeviceInit(DeviceIntPtr dev)
     }
 
     xf86InitValuatorAxisStruct(dev, 1, axes_labels[1], min, max,
-			       priv->resy * 1000, 0, priv->resy * 1000,
-			       Relative);
+                   priv->resy * 1000, 0, priv->resy * 1000,
+                   Relative);
     xf86InitValuatorDefaults(dev, 1);
 
     xf86InitValuatorAxisStruct(dev, 2, axes_labels[2], 0, -1, 0, 0, 0,
@@ -1893,7 +1893,7 @@ SetTapState(SynapticsPrivate * priv, enum TapState tap_state, CARD32 millis)
         priv->tap_button_state = TBS_BUTTON_UP;
         break;
     case TS_2A:
-	priv->tap_button_state = TBS_BUTTON_UP;
+    priv->tap_button_state = TBS_BUTTON_UP;
         break;
     case TS_2B:
         priv->tap_button_state = TBS_BUTTON_UP;
@@ -1902,7 +1902,7 @@ SetTapState(SynapticsPrivate * priv, enum TapState tap_state, CARD32 millis)
         priv->tap_button_state = TBS_BUTTON_DOWN;
         break;
     case TS_SINGLETAP:
-	priv->tap_button_state = TBS_BUTTON_DOWN;
+    priv->tap_button_state = TBS_BUTTON_DOWN;
         priv->touch_on.millis = millis;
         break;
     default:
@@ -3138,8 +3138,10 @@ HandleState(InputInfoPtr pInfo, struct SynapticsHwState *hw, CARD32 now,
 
     dx = dy = 0;
 
-    timeleft = ComputeDeltas(priv, hw, edge, &dx, &dy, inside_active_area);
-    delay = MIN(delay, timeleft);
+    if(!priv->absolute_events) {
+        timeleft = ComputeDeltas(priv, hw, edge, &dx, &dy, inside_active_area);
+        delay = MIN(delay, timeleft);
+    }
 
     buttons = ((hw->left ? 0x01 : 0) |
                (hw->middle ? 0x02 : 0) |
@@ -3152,8 +3154,13 @@ HandleState(InputInfoPtr pInfo, struct SynapticsHwState *hw, CARD32 now,
         buttons |= 1 << (priv->tap_button - 1);
 
     /* Post events */
-    if (finger >= FS_TOUCHED && (dx || dy) && !ignore_motion)
-        xf86PostMotionEvent(pInfo->dev, 0, 0, 2, dx, dy);
+    if (finger >= FS_TOUCHED) {
+        if (priv->absolute_events && inside_active_area) {
+            xf86PostMotionEvent(pInfo->dev, 1, 0, 2, hw->x, hw->y);
+        }else if( (dx || dy ) && !ignore_motion) {
+            xf86PostMotionEvent(pInfo->dev, 0, 0, 2, dx, dy);
+        }
+    }
 
     if (priv->mid_emu_state == MBE_LEFT_CLICK) {
         post_button_click(pInfo, 1);
@@ -3212,9 +3219,25 @@ ControlProc(InputInfoPtr pInfo, xDeviceCtl * control)
 static int
 SwitchMode(ClientPtr client, DeviceIntPtr dev, int mode)
 {
+
+    InputInfoPtr pInfo = (InputInfoPtr) dev->public.devicePrivate;
+    SynapticsPrivate *priv = (SynapticsPrivate *) (pInfo->private);
+
     DBG(3, "SwitchMode called\n");
 
-    return XI_BadMode;
+    switch (mode) {
+        case Absolute:
+            priv->absolute_events = TRUE;
+            break;
+        case Relative:
+            priv->absolute_events = FALSE;
+            break;
+        default:
+            return XI_BadMode;
+            
+    }
+
+    return Success;
 }
 
 static void
